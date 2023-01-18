@@ -1239,15 +1239,15 @@ class SQLBot(Bot):
             raise ValueError("Wrong parameter 'engine' {0!r}, possible values are {1}".format(self.engine_name, engines))
 
     def _connect(self, engine, connect_args: dict, autocommitable: bool = False):
-        self.engine = engine  # imported external library that connects to the DB
+        self._engine = engine  # imported external library that connects to the DB
         self.logger.debug("Connecting to database.")
 
         try:
-            self.con = self.engine.connect(**connect_args)
+            self.con = self._engine.connect(**connect_args)
             if autocommitable:  # psycopg2 has it, sqlite3 has not
                 self.con.autocommit = getattr(self, 'autocommit', True)  # True prevents deadlocks
             self.cur = self.con.cursor()
-        except (self.engine.Error, Exception):
+        except (self._engine.Error, Exception):
             self.logger.exception('Failed to connect to database.')
             self.stop()
         self.logger.info("Connected to database.")
@@ -1288,14 +1288,14 @@ class SQLBot(Bot):
             # note: this assumes, the DB was created with UTF-8 support!
             self.cur.execute(query, values)
             self.logger.debug('Done.')
-        except (self.engine.InterfaceError, self.engine.InternalError,
-                self.engine.OperationalError, AttributeError):
+        except (self._engine.InterfaceError, self._engine.InternalError,
+                self._engine.OperationalError, AttributeError):
             if rollback:
                 try:
                     self.con.rollback()
                     self.logger.exception('Executed rollback command '
                                           'after failed query execution.')
-                except self.engine.OperationalError:
+                except self._engine.OperationalError:
                     self.logger.exception('Executed rollback command '
                                           'after failed query execution.')
                     self.init()

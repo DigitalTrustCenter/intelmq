@@ -65,7 +65,7 @@ class DataplaneParserBot(ParserBot):
         else:
             event = self.new_event(report)
 
-            line_contents = line.split('|')
+            line_contents = line.split('  |  ')
             if len(line_contents) != len(self.FILE_FORMAT) + 1:
                 raise ValueError('Incorrect format for feed {}, found line: "{}"'.format(event.get('feed.url'), line))
 
